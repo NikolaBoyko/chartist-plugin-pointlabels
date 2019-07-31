@@ -28,6 +28,7 @@
         x: 0,
         y: -10
       },
+      labelPostfix: ' C°',
       textAnchor: 'middle',
       align: 'center',
       labelInterpolationFnc: Chartist.noop
@@ -67,15 +68,24 @@
 
       options = Chartist.extend({}, defaultOptions, options);
 
+      function addPostfix(value) {
+        return value + options.labelPostfix;
+      }
+
       function addLabel(position, data) {
         // if x and y exist concat them otherwise output only the existing value
         var value = data.value.x !== undefined && data.value.y ?
-          (data.value.x + ', ' + data.value.y) :
-          data.value.y || data.value.x;
-
+          (addPostfix(data.value.x) + ', ' + addPostfix(data.value.y)) :
+          addPostfix(data.value.y) || addPostfix(data.value.x);
+        function labelOffsetY() {
+          if (data.value.y < 0) {
+            return position.y + Math.abs(options.labelOffset.y) + 10;
+          }
+          return position.y + options.labelOffset.y;
+        }
         data.group.elem('text', {
           x: position.x + options.labelOffset.x,
-          y: position.y + options.labelOffset.y,
+          y: labelOffsetY(),
           style: 'text-anchor: ' + options.textAnchor
         }, options.labelClass).text(options.labelInterpolationFnc(value));
       }
